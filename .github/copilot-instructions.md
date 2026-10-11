@@ -6,13 +6,13 @@ This workspace builds and runs an agent that maintains the **DefensePro QA Brain
 
 | Path | What it is |
 |---|---|
-| `raop-dp-qa-brain/` | Clone of the brain repo (`https://eranp-radware@bitbucket.org/rdwr/raop-dp-qa-brain.git`). It has its own git history; this workspace never commits it. |
+| `raop-dp-qa-brain/` | Clone of the brain repo (`https://bitbucket.org/rdwr/raop-dp-qa-brain.git`). It has its own git history; this workspace never commits it. |
 | `.github/agents/dp-brain-maintainer.agent.md` | The maintainer agent definition |
 | `.github/instructions/` | File-scoped rules (corpus authoring, brain scripts) |
 | `docs/brain/` | What the brain is, its structure, pipeline, knowledge bases, and current status |
 | `docs/agent/` | Agent operating model, git workflow, skills roadmap |
 
-Start with [docs/brain/overview.md](../docs/brain/overview.md). Read [docs/brain/status.md](../docs/brain/status.md) before reporting the brain's health.
+Start with [docs/brain/overview.md](../docs/brain/overview.md). Read [docs/brain/status.md](../docs/brain/status.md) before reporting the brain's health, and [CHANGELOG.md](../CHANGELOG.md) for what changed recently. Record every merged brain PR and every deploy in the CHANGELOG.
 
 ## Non-negotiable rules
 

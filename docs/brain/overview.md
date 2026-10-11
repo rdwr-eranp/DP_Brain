@@ -6,7 +6,7 @@
 
 `raop-dp-qa-brain` is an **agent-oriented, source-grounded knowledge corpus** for Radware **DefensePro**. RAOP (the QA test-plan generation runtime) uses it to write exact, executable QA test plans instead of generic "configure and send traffic" steps.
 
-- **Repo:** `https://eranp-radware@bitbucket.org/rdwr/raop-dp-qa-brain.git` (Bitbucket workspace `rdwr`)
+- **Repo:** `https://bitbucket.org/rdwr/raop-dp-qa-brain.git` (Bitbucket workspace `rdwr`)
 - **Default branch:** `main`. One other branch is `brain/releases-10.14-10.15-and-10.16-planned`, already merged (identical to `main`).
 - **Owner of record:** Guy Perez (DefensePro QA). Every corpus doc is `Status: reviewed`, `Last reviewed: 2026-10-08`.
 - **Contributors:** Guy Perez (most commits), Eran P (release chronology, feature catalog, BDoS CLI).

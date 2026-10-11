@@ -21,13 +21,30 @@ In VS Code Copilot Chat, pick **DP Brain Maintainer** in the agent picker and de
 | [docs/agent/operating-model.md](docs/agent/operating-model.md) | Permission matrix and git workflow |
 | [docs/agent/roadmap.md](docs/agent/roadmap.md) | Planned skills and flows |
 | [scripts/deploy_brain.py](scripts/deploy_brain.py) | Byte-diff deploy of `build/` to the S3 buckets plus Bedrock ingestion (`--apply` needs approval) |
+| [CHANGELOG.md](CHANGELOG.md) | Brain PRs, KB deploys (ingestion job IDs), and workspace changes |
 | `raop-dp-qa-brain/` | Brain repo clone (own git, ignored by this workspace) |
 
 ## Setup
 
+Clone this workspace, then clone the brain inside it. The brain is git-ignored here and keeps its own history.
+
 ```powershell
-git clone https://eranp-radware@bitbucket.org/rdwr/raop-dp-qa-brain.git
-cd raop-dp-qa-brain; python scripts/validate_corpus.py
+git clone https://github.com/rdwr-eranp/DP_Brain.git; cd DP_Brain
+git clone https://bitbucket.org/rdwr/raop-dp-qa-brain.git
+cd raop-dp-qa-brain; python scripts/validate_corpus.py   # expect Errors: 0
 ```
 
-Requirements: Python 3.x and git. Optional: `boto3` plus AWS profile `raop-new-account` for `reconcile_s3.py`, and the `dp-kb-cognito` MCP server for KB grounding. To build on Windows, enable long paths or use the short-path copy described in [pipeline.md](docs/brain/pipeline.md#building-on-windows).
+Requirements:
+
+- Python 3.x and git. The brain scripts are standard-library only.
+- For AWS work: `boto3` (`pip install boto3`), AWS CLI v2, and an SSO profile for account `002889194435` in `eu-central-1`. Log in with `aws sso login --profile <your-profile>`. `deploy_brain.py` defaults to `FullAdminAccessBesidesUserMGMT-002889194435`; if your profile has another name, pass `--profile <name>`.
+- The `dp-kb-cognito` MCP server, for KB grounding and post-deploy smoke tests.
+- To build on Windows: enable long paths, or build from a short-path worktree as described in [pipeline.md](docs/brain/pipeline.md#building-on-windows).
+
+## Working together
+
+- **Brain changes:** use a `brain/<topic>` branch, then open a Bitbucket PR, review, and merge. Never commit directly to `main`.
+- **Deploys:** follow the procedure in [pipeline.md](docs/brain/pipeline.md#deploy-explicit-user-approval-required) for every deploy. Plan first, `--apply` only after approval, then re-plan to 0 changes and smoke-test.
+  - Tell the other maintainer before each `--apply`, so two deploys don't run at once.
+  - Record the deploy, with its ingestion job IDs, in [CHANGELOG.md](CHANGELOG.md).
+- **Health:** [status.md](docs/brain/status.md) is the current snapshot. Its "Still open" list needs the owner's decisions.

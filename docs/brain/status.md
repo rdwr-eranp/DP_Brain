@@ -1,6 +1,6 @@
 # Brain status and known issues
 
-> Snapshot **2026-10-11**, `main` @ `78261d6` (41 commits). Refresh this file whenever the agent runs a health check.
+> Snapshot **2026-10-11**, `main` @ `bace2c2` (47 commits). Refresh this file whenever the agent runs a health check. History of changes: [CHANGELOG](../../CHANGELOG.md).
 
 ## Health
 
@@ -13,7 +13,7 @@
 | S3 / KB deployment (2026-10-11, `origin/main` @ `9ac1a55`) | ✅ Deployed with `deploy_brain.py --apply`: 32 object changes (product 25 changed; guidance 2 new, 3 changed, 2 deleted). Ingestion jobs: product `FBZXESOXDY` COMPLETE (24 modified), guidance `QHWWFKHXUY` COMPLETE (1 new, 3 modified, 1 deleted), 0 failed. Re-plan: 0 changes. A live `dp_qa_brain_product` search serves the updated 10.15 parameter router |
 | Upstream after deploy (`origin/main` @ `7f14132`, now `bace2c2`) | Guy merged `bc040d9` (PSSLO Connection Limit HTTPS / clear-backend sections). It was deployed outside this workspace: ingestion jobs `IJ0TPDM3PH`/`1SU107WEYQ` (product) and `IB3F5QCQHQ`/`UAD06TRKEQ` (guidance) at 13:46 and 13:48 UTC, all COMPLETE. `deploy_brain.py` plan against `7f14132`: 0 changes. **Another deployer is active.** Coordinate with Guy before each `--apply` |
 | MCP release catalog (`evaluation_health_check`) | ✅ PR #1 had broken it for 10.x (`no exact anchor or latest GA release stated for 10.x`). PR #2 (`brain/release-catalog-anchor-sentence`, merged as `bace2c2`) fixed it and was deployed 2026-10-11: 1 chunk, product ingestion `UREA1VHS7S` COMPLETE. Catalog now loads 98 versions, anchors 8.35.5.0 / 10.15.0.0, `last_error: null`; `resolve_version 10.15.0.0` is exact-known |
-| Branches | `main` = `origin/brain/releases-10.14-10.15-and-10.16-planned` (merged). PR #1 `brain/readme-anchor-10.15` merged as `9ac1a55` (approved by Guy Perez) |
+| Branches | `main` @ `bace2c2`. Merged: `brain/releases-10.14-10.15-and-10.16-planned` (Guy's 10.15 re-ground and PSSLO coverage), PR #1 `brain/readme-anchor-10.15` (`9ac1a55`), PR #2 `brain/release-catalog-anchor-sentence` (`bace2c2`). Both PR branches still exist on the remote and can be deleted |
 
 ## Known drift inside the brain repo
 
@@ -23,6 +23,10 @@
 - `docs/kb-integration.md` smoke criteria and the legacy-fallback description
 - `corpus-manifest.json` capacity note
 - Anchor and routing text in release-delta, release-inventory, feature-version-map, source-authority, navigation index, 08-parameters router and table map, and the source catalog capacity rows
+
+### Fixed on `brain/release-catalog-anchor-sentence` (merged 2026-10-11 in PR #2; deployed the same day)
+
+- Restored the 10.x anchor sentence in `release-inventory.md` to a form that `DP_QA_MCP/release_catalog.py` parses. PR #1 had broken the live release catalog for 10.x.
 
 ### Still open
 

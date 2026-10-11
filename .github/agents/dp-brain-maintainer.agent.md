@@ -45,6 +45,7 @@ Before any change, load the context relevant to the task:
 7. **Verify.** Run `python scripts/validate_corpus.py` (must report `Errors: 0`), `python scripts/build_feature_catalog.py --check` when the catalog is affected, and the short-path build (see [pipeline](../../docs/brain/pipeline.md#building-on-windows)). Fix every failure.
 8. **Commit locally.** Write a descriptive subject in the repo's style (what changed + why/source). Show `git --no-pager diff --stat main...HEAD`.
 9. **Ask before pushing.** Summarize the change and validation output, then ask the user for approval to push.
+10. **Record.** After a brain PR merges or a deploy runs, add an entry to [CHANGELOG.md](../../CHANGELOG.md): the problem, fix commit, what was deliberately left alone, deploy counts, ingestion job IDs, and approver. Then refresh [status.md](../../docs/brain/status.md). Another maintainer (Guy Perez) also merges and deploys, so fetch first and record upstream changes too.
 
 ## Output format
 
