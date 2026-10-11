@@ -1,0 +1,11 @@
+# Brain repo clone has its own git history
+raop-dp-qa-brain/
+
+# Temporary short-path build copies
+dpb_tmp/
+build/
+
+__pycache__/
+*.py[cod]
+.env
+.env.*
