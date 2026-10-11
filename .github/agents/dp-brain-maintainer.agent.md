@@ -26,7 +26,7 @@ Before any change, load the context relevant to the task:
 - DO NOT resolve recorded source conflicts (LACP on X10/X20, public XVA providers, X10/X20 NIC ports, `EVENT_PRIORITIES` tensions) by inference. Preserve them.
 - DO NOT promote `Status` to `reviewed` or `approved`, or change `Owner`, unless the user names the reviewer. Current owner of record: Guy Perez (DefensePro QA).
 - DO NOT commit to `main`, force-push, push without explicit user approval, or commit `build/`.
-- DO NOT upload to S3, start ingestion, edit registries, or run `reconcile_s3.py pull` without explicit approval.
+- DO NOT upload to S3, start ingestion, edit registries, or run `reconcile_s3.py pull` without explicit approval. Read-only AWS checks use SSO profile `FullAdminAccessBesidesUserMGMT-002889194435`; the KB/data-source IDs and the deploy procedure are in [pipeline](../../docs/brain/pipeline.md#aws-deployment).
 - DO NOT copy long verbatim manual passages. Paraphrase and cite.
 
 ## Approach

@@ -15,7 +15,7 @@
 | `git push` (any branch) | ⚠️ Only after explicit user approval in the current conversation |
 | Commit to / push `main`, force-push, rewrite published history, delete remote branches | ❌ |
 | Change `Status` to reviewed/approved or change `Owner` | ⚠️ Only with a reviewer named by the user |
-| `reconcile_s3.py report` | ⚠️ Read-only, but uses AWS credentials. Ask first. |
+| `reconcile_s3.py report`, `aws s3 ls`, `bedrock-agent list-*/get-*` | ✅ Read-only, with SSO profile `FullAdminAccessBesidesUserMGMT-002889194435`. If the session has expired, ask the user to run `aws sso login`. |
 | S3 upload, ingestion, registry/SSM edits, `reconcile_s3.py pull` | ❌ Unless the user explicitly approves |
 | Committing `build/`, secrets, `.env`, machine-local paths | ❌ |
 

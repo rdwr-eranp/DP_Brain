@@ -10,12 +10,12 @@
 | `build_corpus.py` in place | ❌ `FileNotFoundError`: Windows 260-char path limit (see [pipeline](pipeline.md#building-on-windows)) |
 | `build_corpus.py` short path | ✅ 1118 chunks (product 75 docs / 833, guidance 29 docs / 285) |
 | `plan_provisioning.py` | ✅ dry-run JSON, `mutations=[]` |
-| `reconcile_s3.py report` | ⏸ not run (needs AWS profile `raop-new-account` + `boto3`) |
-| Branches | `main` = `origin/brain/releases-10.14-10.15-and-10.16-planned` (merged). Pushed, PR pending: `origin/brain/readme-anchor-10.15` @ `463f2f1` |
+| `reconcile_s3.py report` (2026-10-11, `origin/main` @ `9ac1a55`) | ⚠️ 32 objects of drift. All come from the merged anchor fix (PR #1), which is not deployed yet. The KBs still serve the pre-merge content; the last ingestion was 2026-10-11 12:19 UTC |
+| Branches | `main` = `origin/brain/releases-10.14-10.15-and-10.16-planned` (merged). PR #1 `brain/readme-anchor-10.15` merged as `9ac1a55` (approved by Guy Perez) |
 
 ## Known drift inside the brain repo
 
-### Fixed on `brain/readme-anchor-10.15` (pushed 2026-10-11, PR pending)
+### Fixed on `brain/readme-anchor-10.15` (merged 2026-10-11 in PR #1; not yet deployed to S3/KB)
 
 - README anchors, counts, branch table, version-family boundary, owner-work items
 - `docs/kb-integration.md` smoke criteria and the legacy-fallback description
