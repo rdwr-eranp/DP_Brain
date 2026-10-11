@@ -21,7 +21,7 @@ Start with [docs/brain/overview.md](../docs/brain/overview.md). Read [docs/brain
 - **Never invent product facts.** Values come from cited authoritative sources (User Guide, CLI/OID, Release Notes, capacity, tech specs) or remain `TBD` with an owner.
 - **Validate before proposing.** Run `python scripts/validate_corpus.py` in `raop-dp-qa-brain/` after any brain change; it must report `Errors: 0`.
 - **Git:** work on a `brain/<topic>` branch, commit locally, and **push only after explicit user approval**. Never commit to or push `main` directly, never force-push, never commit `build/`.
-- **No cloud mutation.** Do not upload to S3, start ingestion, or run `reconcile_s3.py pull` without explicit approval. `reconcile_s3.py report` is read-only but needs AWS credentials.
+- **No cloud mutation.** Do not upload to S3, start ingestion, or run `reconcile_s3.py pull` without explicit approval. `reconcile_s3.py report` and `aws ... list/get/ls` calls are read-only; use SSO profile `FullAdminAccessBesidesUserMGMT-002889194435` (see [pipeline](../docs/brain/pipeline.md#aws-deployment)).
 
 ## Environment gotchas (Windows)
 
