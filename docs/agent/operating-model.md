@@ -15,8 +15,8 @@
 | `git push` (any branch) | ⚠️ Only after explicit user approval in the current conversation |
 | Commit to / push `main`, force-push, rewrite published history, delete remote branches | ❌ |
 | Change `Status` to reviewed/approved or change `Owner` | ⚠️ Only with a reviewer named by the user |
-| `reconcile_s3.py report`, `aws s3 ls`, `bedrock-agent list-*/get-*` | ✅ Read-only, with SSO profile `FullAdminAccessBesidesUserMGMT-002889194435`. If the session has expired, ask the user to run `aws sso login`. |
-| S3 upload, ingestion, registry/SSM edits, `reconcile_s3.py pull` | ❌ Unless the user explicitly approves |
+| `reconcile_s3.py report`, `deploy_brain.py` (plan mode, no `--apply`), `aws s3 ls`, `bedrock-agent list-*/get-*` | ✅ Read-only, with SSO profile `FullAdminAccessBesidesUserMGMT-002889194435`. If the session has expired, ask the user to run `aws sso login`. |
+| `deploy_brain.py --apply`, other S3 uploads, ingestion, registry/SSM edits, `reconcile_s3.py pull` | ❌ Unless the user explicitly approves (show the plan first) |
 | Committing `build/`, secrets, `.env`, machine-local paths | ❌ |
 
 ## Git conventions in the brain repo

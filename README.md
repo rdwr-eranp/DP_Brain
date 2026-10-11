@@ -15,11 +15,12 @@ In VS Code Copilot Chat, pick **DP Brain Maintainer** in the agent picker and de
 | [.github/instructions/](.github/instructions) | Auto-applied rules for corpus Markdown and brain scripts |
 | [docs/brain/overview.md](docs/brain/overview.md) | What the brain is, why, sources, principles, consumers, history |
 | [docs/brain/structure.md](docs/brain/structure.md) | Repo layout, branches → KB collections, header/ID scheme, hub docs |
-| [docs/brain/pipeline.md](docs/brain/pipeline.md) | Scripts, build on Windows, definition of done |
+| [docs/brain/pipeline.md](docs/brain/pipeline.md) | Scripts, build on Windows, AWS deploy flow, definition of done |
 | [docs/brain/knowledge-bases.md](docs/brain/knowledge-bases.md) | The 10 DP KBs and the `dp-kb-cognito` MCP tools |
 | [docs/brain/status.md](docs/brain/status.md) | Health snapshot, known drift, owner-only gaps |
 | [docs/agent/operating-model.md](docs/agent/operating-model.md) | Permission matrix and git workflow |
 | [docs/agent/roadmap.md](docs/agent/roadmap.md) | Planned skills and flows |
+| [scripts/deploy_brain.py](scripts/deploy_brain.py) | Byte-diff deploy of `build/` to the S3 buckets plus Bedrock ingestion (`--apply` needs approval) |
 | `raop-dp-qa-brain/` | Brain repo clone (own git, ignored by this workspace) |
 
 ## Setup

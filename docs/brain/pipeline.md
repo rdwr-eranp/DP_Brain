@@ -1,15 +1,18 @@
 # Brain pipeline and scripts
 
-All commands run from `raop-dp-qa-brain/`. Every script except `reconcile_s3.py` is standard-library only and makes no network calls.
+Brain scripts run from `raop-dp-qa-brain/`. Every brain script except `reconcile_s3.py` is standard-library only and makes no network calls. The deploy tool `deploy_brain.py` lives in this workspace (`scripts/`), not in the brain, and needs `boto3`.
 
 ## Lifecycle
 
 ```
 author corpus/ ──► validate_corpus.py ──► build_corpus.py ──► build/ ──► plan_provisioning.py (dry-run JSON)
-                                                                   │
-                                     (explicit approval) upload to S3 ─► Bedrock ingestion ─► smoke tests
-                                                                   │
-                                          reconcile_s3.py report ◄─┘  (drift check: S3 vs build/)
+   (PR → merge to main)                                       │
+                                                                  │  deploy_brain.py (plan: byte-compare S3 vs build/)
+                                                                  │  (explicit approval) deploy_brain.py --apply
+                                                                  │     → put/delete changed S3 objects → Bedrock ingestion → poll
+                                                                  │
+         smoke tests (dp-kb-cognito) ◄── re-plan = 0 changes ◄───────────────────────┘
+         reconcile_s3.py report (independent read-only drift check)
 ```
 
 ## Scripts
@@ -22,6 +25,7 @@ author corpus/ ──► validate_corpus.py ──► build_corpus.py ──► 
 | `build_feature_catalog.py` | Turns `03-protections/catalog.md` + `feature-alias-overrides.json` into `feature_catalog.json` (22 features). Mirrors to server dir when checked out as `_brain/` | `python scripts/build_feature_catalog.py [--check] [--output PATH]` | Writes `feature_catalog.json` |
 | `reground_release.py` | Moves 10.x citations from one exact release to another. `audit` checks CLI nodes/switches, CLI line ranges, quoted UG passages, and table captions against the target manuals and writes `build/reground-<from>-to-<to>.md`. `apply` rewrites only what the audit proved. | `python scripts/reground_release.py audit --from 10.15.0.0 --to 10.16.0.0` | Needs manuals at `C:\raop-workspace\.dp_doc`. `apply` edits corpus. |
 | `reconcile_s3.py` | `report`: byte-compares S3 objects vs `build/`. `pull`: reconstructs authored docs from S3-only chunks. | `python scripts/reconcile_s3.py report [--strict]` | Needs `boto3` and an AWS profile (hardcoded `raop-new-account`; see [AWS access](#aws-access-from-this-workstation)), region `eu-central-1`. **`pull` writes corpus. Approval required.** |
+| `deploy_brain.py` (workspace `scripts/`) | Byte-compares `build/<collection>/` against each S3 bucket. With `--apply`: uploads new/changed objects (correct `ContentType`, SSE `AES256`), deletes S3-only objects, starts one ingestion job per changed KB, and polls until it finishes. | `python scripts\deploy_brain.py --brain C:\dpb_tmp [--apply]` (from the workspace root) | Plan mode is read-only. **`--apply` mutates S3 and the KBs. Approval required.** Exit 1 if a job isn't `COMPLETE` or has failed documents. |
 
 ## AWS deployment
 
@@ -30,7 +34,7 @@ author corpus/ ──► validate_corpus.py ──► build_corpus.py ──► 
 | product-synthesis | `raop-kb-dp-qa-brain-product-synthesis-corpus` | `dp_qa_brain_product_kb` / `PRGABXXNYT` | `dp-qa-brain-product-synthesis-s3` / `H3GLUGV1CX` |
 | qa-guidance | `raop-kb-dp-qa-brain-qa-guidance-corpus` | `dp_qa_brain_guidance_kb` / `PLHEYMOXHR` | `dp-qa-brain-qa-guidance-s3` / `HXQVH4AVRL` |
 
-Account `002889194435`, region `eu-central-1`. The bucket layout mirrors `build/<collection>/` exactly (chunk `.md` + `.metadata.json`), so `reconcile_s3.py report` can byte-compare them. Merging a PR does **not** update the KBs: the deployed brain changes only after build → S3 sync → ingestion job.
+Account `002889194435`, region `eu-central-1`. The bucket layout mirrors `build/<collection>/` exactly (chunk `.md` + `.metadata.json`), so `reconcile_s3.py report` can byte-compare them. Merging a PR does **not** update the KBs: the deployed brain changes only after build → `deploy_brain.py --apply` (S3 upload + ingestion job).
 
 ### AWS access from this workstation
 
@@ -60,10 +64,24 @@ aws bedrock-agent list-ingestion-jobs --knowledge-base-id PLHEYMOXHR --data-sour
 
 ### Deploy (explicit user approval required)
 
-1. Build `origin/main` in a short-path worktree, then run the drift report. Review every `only_in_s3` key. A renamed heading also appears as `only_in_s3`; that's expected, not lost content.
-2. `aws s3 sync build/<collection>/ s3://<bucket>/ --delete --profile $p` for each collection.
-3. `aws bedrock-agent start-ingestion-job --knowledge-base-id <KB> --data-source-id <DS> --profile $p --region eu-central-1` for each KB, then poll `get-ingestion-job` until `COMPLETE` with `numberOfDocumentsFailed=0`.
-4. Re-run the report (expect `TOTAL DRIFT: 0`), then smoke-test through `dp-kb-cognito` (`evaluation_health_check`, plus a 10.15.0.0 query against `dp_qa_brain_product`).
+Run from the workspace root (`C:\Users\EranP\.vscode\DP_Brain`), with `$p` set as above.
+
+```powershell
+cd raop-dp-qa-brain; git fetch origin; git worktree add --detach C:\dpb_tmp origin/main; cd ..
+Push-Location C:\dpb_tmp; python scripts/validate_corpus.py; python scripts/build_corpus.py; Pop-Location
+python scripts\deploy_brain.py --brain C:\dpb_tmp            # 1. plan (read-only)
+# 2. review the plan with the user; get explicit approval
+python scripts\deploy_brain.py --brain C:\dpb_tmp --apply    # 3. upload/delete + ingest + poll
+python scripts\deploy_brain.py --brain C:\dpb_tmp            # 4. expect TOTAL CHANGES: 0
+cd raop-dp-qa-brain; git worktree remove --force C:\dpb_tmp; git worktree prune
+```
+
+1. **Plan.** Validate must report `Errors: 0`. The plan must match what the merged PRs changed. Review every `delete` key: a renamed heading deletes the old chunk + sidecar and adds new ones (expected). An unexpected delete may be content edited directly in S3. Stop and run `reconcile_s3.py report` before deploying.
+2. **Approve.** Show the user the per-collection counts and the delete list.
+3. **Apply.** Expect each changed KB's job to reach `COMPLETE` with `numberOfDocumentsFailed=0`. Only KBs whose bucket changed are ingested.
+4. **Verify.** Re-plan shows `TOTAL CHANGES: 0`. Smoke-test through `dp-kb-cognito`: `evaluation_health_check`, plus a `search` against `dp_qa_brain_product` for the changed content (for example, a 10.15.0.0 query). Record the job IDs in [status.md](status.md).
+
+**Why not `aws s3 sync`?** A fresh checkout gives every file a new mtime, so `sync` re-uploads all ~2,236 objects and forces a full re-index. `deploy_brain.py` compares bytes, so it uploads only real changes. On the first run (2026-10-11) it uploaded 30 objects and deleted 2. Ingestion indexed 24 modified documents in product, and 1 new, 3 modified, and 1 deleted in guidance.
 
 Why `reconcile_s3.py` exists: content once edited directly in S3 (the `05-management-api` and `06-feature-domain` branches) was invisible to the repo and would have been lost on the next sync. **The repo must remain the single source of truth.**
 

@@ -21,10 +21,10 @@ Start with [docs/brain/overview.md](../docs/brain/overview.md). Read [docs/brain
 - **Never invent product facts.** Values come from cited authoritative sources (User Guide, CLI/OID, Release Notes, capacity, tech specs) or remain `TBD` with an owner.
 - **Validate before proposing.** Run `python scripts/validate_corpus.py` in `raop-dp-qa-brain/` after any brain change; it must report `Errors: 0`.
 - **Git:** work on a `brain/<topic>` branch, commit locally, and **push only after explicit user approval**. Never commit to or push `main` directly, never force-push, never commit `build/`.
-- **No cloud mutation.** Do not upload to S3, start ingestion, or run `reconcile_s3.py pull` without explicit approval. `reconcile_s3.py report` and `aws ... list/get/ls` calls are read-only; use SSO profile `FullAdminAccessBesidesUserMGMT-002889194435` (see [pipeline](../docs/brain/pipeline.md#aws-deployment)).
+- **No cloud mutation.** Do not upload to S3, start ingestion, run `scripts/deploy_brain.py --apply`, or run `reconcile_s3.py pull` without explicit approval. Deploy with `deploy_brain.py` (byte-diff plan → approval → `--apply`), not `aws s3 sync`. Plan mode, `reconcile_s3.py report` and `aws ... list/get/ls` calls are read-only; use SSO profile `FullAdminAccessBesidesUserMGMT-002889194435` (see [pipeline](../docs/brain/pipeline.md#aws-deployment)).
 
 ## Environment gotchas (Windows)
 
-- Python 3.14 is on PATH as `python`. Brain scripts are stdlib only, except `reconcile_s3.py`, which needs `boto3`.
+- Python 3.14 is on PATH as `python`. Brain scripts are stdlib only, except `reconcile_s3.py`, which needs `boto3` (installed). The workspace `scripts/deploy_brain.py` also needs `boto3`.
 - `build_corpus.py` fails under this workspace path with `FileNotFoundError` because some output paths exceed 260 characters and `LongPathsEnabled=0`. Build from a short-path copy. See [docs/brain/pipeline.md](../docs/brain/pipeline.md#building-on-windows).
 - `reground_release.py` expects normalized manuals at `C:\raop-workspace\.dp_doc`.

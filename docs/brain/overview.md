@@ -47,7 +47,7 @@ Installation guides and release-matched 10.13+ capacity data are **not** in the 
 ## Who consumes it
 
 ```
-corpus/ --validate--> build/ (chunks + .metadata.json) --upload (approved)--> S3 --Bedrock ingestion--> 2 KBs
+corpus/ --validate--> build/ (chunks + .metadata.json) --deploy_brain.py --apply (approved)--> S3 --Bedrock ingestion--> 2 KBs
                                                                                                          |
           RAOP runtime (raop-runtime-common kb_routing.py, server.py, dp-kb-cognito MCP) <---------------+
 ```
