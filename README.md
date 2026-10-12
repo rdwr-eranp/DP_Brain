@@ -51,7 +51,7 @@ Requirements:
 
 ## Memory-candidate harvest (read-only)
 
-The long-term-memory governance table (`raop-prod-memory-governance`, account `002889194435`) can be read to harvest candidate facts from user interactions. Use [scripts/harvest_memory_candidates.py](scripts/harvest_memory_candidates.py) to page the full review queue, group candidates by feature, and generate a review report against the brain.
+The long-term-memory governance table (`raop-prod-memory-governance`, account `002889194435`) can be read to harvest candidate facts from user interactions. Use [scripts/harvest_memory_candidates.py](scripts/harvest_memory_candidates.py) to page the review queue, group candidates by feature, and generate a review report against the brain. By default, it includes only `scope=team`, `scope_id=ams/defensepro/qa`; other teams, organization-scope records, Cyber Controller, and other domains are excluded. Use `--scope-id` to select another team, or `--all-scopes` only when a broader review is intended.
 
 - **Read-only only:** list and analyze candidates from DynamoDB; never approve or reject by writing the table directly.
 - **Decisions:** if Guy wants to close or approve candidates, do it through the REST API from his guide, not DynamoDB writes.

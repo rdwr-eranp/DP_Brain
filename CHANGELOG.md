@@ -2,6 +2,15 @@
 
 Changes to the brain (`raop-dp-qa-brain`), its deployed S3/Bedrock knowledge bases, and this workspace. Newest first. Current health and open drift: [docs/brain/status.md](docs/brain/status.md).
 
+## 2026-10-12
+
+### Memory-candidate harvest: default to DefensePro QA team scope
+
+- DynamoDB queue inspection found 1,006 candidates with `scope=team` and `scope_id=ams/defensepro/qa`; the remaining pending records include Cyber Controller and organization-scope entries.
+- `harvest_memory_candidates.py` now filters to that exact team scope by default, reports the fetched and retained counts, and includes scope/domain in report metadata. `--scope-id` selects a different team; `--all-scopes` opts out.
+- Re-ran the BDoS signature-sync pilot: 296 candidates, all `team:ams/defensepro/qa` and `defensepro`.
+- No candidate decisions or DynamoDB writes were made.
+
 ## 2026-10-11
 
 ### Brain PR #2: restore the release-catalog anchor sentence (merged `bace2c2`, deployed)

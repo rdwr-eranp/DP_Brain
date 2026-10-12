@@ -162,6 +162,9 @@ def triage(cands: list[dict], idx: dict, feature_doc: str | None) -> list[dict]:
             "candidate_id": c["candidate_id"],
             "type": c.get("candidate_type"),
             "owner": c.get("owner_id"),
+            "scope": c.get("scope"),
+            "scope_id": c.get("scope_id"),
+            "domain": c.get("domain"),
             "created_at": c.get("created_at"),
             "question_id": m.group("qid") if m else None,
             "issue": (m.group("head").strip() if m and m.group("question") else None),
@@ -199,6 +202,8 @@ def clip(text: str | None, n: int) -> str:
 
 def write_report(path: Path, feature: str, feature_doc: str | None, rows: list[dict], clusters: list[list[dict]]) -> None:
     by_bucket = collections.Counter(r["bucket"] for r in rows)
+    by_scope = collections.Counter(f"{r['scope']}:{r['scope_id']}" for r in rows)
+    by_domain = collections.Counter(r["domain"] for r in rows)
     unknown = collections.Counter(i for r in rows for i in r["ids"].get("unknown_to_brain", []))
     missing = collections.Counter(s for r in rows for s in r["missing_sections"])
     lines = [
@@ -213,6 +218,8 @@ def write_report(path: Path, feature: str, feature_doc: str | None, rows: list[d
         "## Summary",
         "",
         f"- Candidates: {len(rows)}; question clusters: {len(clusters)}",
+        f"- Scope: " + (", ".join(f"{k} ({v})" for k, v in by_scope.most_common()) or "none"),
+        f"- Domain: " + (", ".join(f"{k} ({v})" for k, v in by_domain.most_common()) or "none"),
         f"- Buckets: " + ", ".join(f"{k} {v}" for k, v in by_bucket.most_common()),
         f"- With conflicts: {sum(1 for r in rows if r['conflicts'])}; with nearest matches: {sum(1 for r in rows if r['nearest'])}",
         f"- IDs unknown to the brain: " + (", ".join(f"{i} ({n})" for i, n in unknown.most_common()) or "none"),
@@ -269,7 +276,13 @@ def main() -> int:
     ap.add_argument("--profile", default=DEFAULT_PROFILE)
     ap.add_argument("--status", default="pending", help="review_status to read (default: pending)")
     ap.add_argument("--from-json", type=Path, help="use a saved export instead of DynamoDB")
-    ap.add_argument("--save-json", type=Path, help="save the raw export (keep it out of git)")
+    ap.add_argument("--save-json", type=Path, help="save the filtered export (keep it out of git)")
+    ap.add_argument(
+        "--scope-id",
+        default="ams/defensepro/qa",
+        help="include only this team scope ID (default: ams/defensepro/qa)",
+    )
+    ap.add_argument("--all-scopes", action="store_true", help="include candidates outside the default team scope")
     ap.add_argument("--feature", help="canonical feature slug, e.g. bdos-signature-sync")
     ap.add_argument("--list-features", action="store_true")
     ap.add_argument("--brain", type=Path, default=ROOT / "raop-dp-qa-brain")
@@ -278,9 +291,16 @@ def main() -> int:
     args = ap.parse_args()
 
     cands = json.loads(args.from_json.read_text(encoding="utf-8")) if args.from_json else load_live(args.profile, args.status)
+    fetched_count = len(cands)
+    if not args.all_scopes:
+        cands = [
+            c for c in cands
+            if c.get("scope") == "team" and c.get("scope_id") == args.scope_id
+        ]
     if args.save_json:
         args.save_json.write_text(json.dumps(cands, ensure_ascii=False), encoding="utf-8")
-    print(f"{len(cands)} candidates ({args.status})")
+    scope_label = "all scopes" if args.all_scopes else f"team scope {args.scope_id}"
+    print(f"{len(cands)} candidates ({args.status}; {scope_label}; fetched {fetched_count})")
 
     by_feature = collections.defaultdict(list)
     for c in cands:
