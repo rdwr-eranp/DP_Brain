@@ -48,3 +48,11 @@ Requirements:
   - Tell the other maintainer before each `--apply`, so two deploys don't run at once.
   - Record the deploy, with its ingestion job IDs, in [CHANGELOG.md](CHANGELOG.md).
 - **Health:** [status.md](docs/brain/status.md) is the current snapshot. Its "Still open" list needs the owner's decisions.
+
+## Memory-candidate harvest (read-only)
+
+The long-term-memory governance table (`raop-prod-memory-governance`, account `002889194435`) can be read to harvest candidate facts from user interactions. Use [scripts/harvest_memory_candidates.py](scripts/harvest_memory_candidates.py) to page the full review queue, group candidates by feature, and generate a review report against the brain.
+
+- **Read-only only:** list and analyze candidates from DynamoDB; never approve or reject by writing the table directly.
+- **Decisions:** if Guy wants to close or approve candidates, do it through the REST API from his guide, not DynamoDB writes.
+- **Current pilot:** `bdos-signature-sync`, with raw exports kept outside git and reports written under `out/` (git-ignored).
